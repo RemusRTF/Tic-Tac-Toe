@@ -170,8 +170,9 @@ func doSomething(available map[int]bool, m map[int]string, activeChar string, hi
 		return highestPos, bestValue
 	}
 
-	bestValue := 0
-	highestPos := 0
+	var bestValue int
+	var highestPos int
+	first := true
 
 	for a := range available {
 
@@ -181,32 +182,33 @@ func doSomething(available map[int]bool, m map[int]string, activeChar string, hi
 		}
 		newM[a] = activeChar
 
-		highestYet := 0
+		highestYet := getScore(newM)
+
+		if first {
+			bestValue = highestYet
+			highestPos = a
+			first = false
+		}
 
 		if activeChar == "X" {
 			//Check, if won by next turn
-			if getScore(newM) == highestValue {
-				// Negative number => no Branch changing
+			if highestYet == highestValue {
 				return a, highestValue
 			}
 
 		} else {
 			//Check, if won by next turn
-			if getScore(newM) == -highestValue {
+			if highestYet == -highestValue {
 				return a, -highestValue //--------------------- false -----------------------------------
 			}
 		}
 
-		if activeChar == "X" {
-			if highestYet > bestValue {
-				bestValue = highestYet
-				highestPos = a
-			}
-		} else {
-			if highestYet < bestValue {
-				bestValue = highestYet
-				highestPos = a
-			}
+		if activeChar == "X" && highestYet > bestValue {
+			bestValue = highestYet
+			highestPos = a
+		} else if highestYet < bestValue {
+			bestValue = highestYet
+			highestPos = a
 		}
 	}
 	return highestPos, bestValue
@@ -244,7 +246,7 @@ func main() {
 
 	reader := bufio.NewReader(os.Stdin)
 
-	activeChar := "X"
+	activeChar := "O"
 
 	for getScore(m) == 0 && len(available) > 0 {
 		//clearConsole()
@@ -287,5 +289,5 @@ func main() {
 	if getScore(m) == 0 {
 		activeChar = "Nobody"
 	}
-	fmt.Println(activeChar, " won the game!")
+	fmt.Println(activeChar + " won the game!")
 }
